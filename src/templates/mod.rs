@@ -11,7 +11,6 @@ pub enum TemplateName {
     Base,
     Home,
     Error,
-    Test,
 }
 
 impl TemplateName {
@@ -20,7 +19,6 @@ impl TemplateName {
             Self::Base => "base",
             Self::Home => "home",
             Self::Error => "error",
-            Self::Test => "test",
         }
     }
 }
@@ -31,7 +29,6 @@ lazy_static! {
         hb.register_template_string(&TemplateName::Base.to_string(), include_str!("base.html")).unwrap();
         hb.register_template_string(&TemplateName::Home.to_string(), include_str!("home.html")).unwrap();
         hb.register_template_string(&TemplateName::Error.to_string(), include_str!("error.html")).unwrap();
-        hb.register_template_string(&TemplateName::Test.to_string(), "showing {{title}}").unwrap();
         hb
     };
 }

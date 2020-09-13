@@ -1,18 +1,17 @@
 use crate::utils::*;
-use crate::console_logf;
-use cfg_if::cfg_if;
-use handlebars::Handlebars;
 use http::StatusCode;
-use js_sys::{Array, Promise};
-use url::Url;
+use js_sys::{ Promise};
 use crate::templates::{HBARS, TemplateName};
 use wasm_bindgen::prelude::*;
+use lazy_static::lazy_static;
 use web_sys::{
-    FetchEvent, FormData, Headers, Request, Response, ResponseInit, ServiceWorkerGlobalScope,
+    Headers, Request, Response, ResponseInit, ServiceWorkerGlobalScope,
 };
 use std::collections::BTreeMap;
 
-const DEFAULT_TITLE: &str = "quiet.";
+lazy_static!{
+    static ref BASE: &'static str = TemplateName::Base.name();
+}
 
 pub fn generate_error_response(status: StatusCode, msg: Option<&str>) -> JsResult {
     let status_error_msg = format!(
@@ -48,10 +47,8 @@ fn generate_response(body: &str, status: u16, headers: &Headers) -> Result<Respo
 }
 
 pub async fn render_home(request: Request) -> JsResult {
-    let data: BTreeMap<_, _> = [("title", "quiet.")].iter().cloned().collect();
-    console_logf!("{}", "Rendering...");
-    let body = HBARS.render(TemplateName::Test.name(), &data).ok_or_js_err_with_msg("failed to render homepage")?;
-    console_logf!("{}: {}", "Rendered", body);
+    let data: BTreeMap<_, _> = [("title", "quiet."), ("parent", *BASE)].iter().cloned().collect();
+    let body = HBARS.render(TemplateName::Home.name(), &data).ok_or_js_err_with_msg("failed to render homepage")?;
     let headers = Headers::new()?;
     headers.append("content-type", "text/html")?;
     let resp = generate_response(&body, 200, &headers)?;
