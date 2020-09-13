@@ -1,0 +1,64 @@
+[package]
+name = "quiet-serverless"
+version = "0.1.0"
+authors = ["Adam Chalmers <adam.s.chalmers@gmail.com>"]
+edition = "2018"
+repository = "https://github.com/adamchalmers/quiet-serverless"
+description = "Backend for 'quiet', built using serverless rust"
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+default = ["console_error_panic_hook"]
+
+[dependencies]
+cfg-if = "0.1.2"
+futures = "0.3"
+handlebars = "3.4.0"
+http = "0.2.1"
+js-sys = "0.3"
+lazy_static = "1.1.0"
+rmp-serde = "0.14"
+serde = { version = "1.0.79", features = ["derive"] }
+url = "1.7.1"
+uuid = { version = "0.8.1", features = ["v4", "wasm-bindgen"] }
+wasm-bindgen = { version = "=0.2.65", features = ["serde-serialize"] }
+wasm-bindgen-futures = "0.4"
+
+
+# The `console_error_panic_hook` crate provides better debugging of panics by
+# logging them with `console.error`. This is great for development, but requires
+# all the `std::fmt` and `std::panicking` infrastructure, so isn't great for
+# code size when deploying.
+console_error_panic_hook = { version = "0.1.1", optional = true }
+
+# `wee_alloc` is a tiny allocator for wasm that is only ~1K in code size
+# compared to the default allocator's ~10K. It is slower than the default
+# allocator, however.
+wee_alloc = { version = "0.4.2", optional = true }
+
+
+[dependencies.web-sys]
+version = "0.3"
+features = [
+  'console',
+  'FetchEvent',
+  'FormData',
+  'Headers',
+  'Request',
+  'Response',
+  'ResponseInit',
+  'ServiceWorkerGlobalScope',
+  'Window',
+]
+
+[dev-dependencies]
+wasm-bindgen-test = "0.2"
+
+[profile.release]
+# Tell `rustc` to optimize for small code size.
+opt-level = "s"

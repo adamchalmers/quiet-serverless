@@ -1,0 +1,10 @@
+name = "quiet-serverless"
+type = "rust"
+account_id = "17aed4d14e84bd4ae5a6a02e1369ac63"
+workers_dev = true
+route = ""
+zone_id = ""
+
+kv_namespaces = [
+    { binding = "PostsNs", id = "4347c2d3f9fc4a009fcc263ec47993e3", preview_id = "4347c2d3f9fc4a009fcc263ec47993e3" },
+]
