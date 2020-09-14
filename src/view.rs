@@ -7,23 +7,21 @@ use lazy_static::lazy_static;
 use web_sys::{
     Headers, Request, Response, ResponseInit, ServiceWorkerGlobalScope,
 };
+use crate::twoface;
 use std::collections::BTreeMap;
 
 lazy_static!{
     static ref BASE: &'static str = TemplateName::Base.name();
 }
 
-pub fn generate_error_response(status: StatusCode, msg: Option<&str>) -> JsResult {
+pub fn generate_error_response(error: twoface::Error) -> JsResult {
+    let status = error.external.status;
     let status_error_msg = format!(
         "{} {}",
         status.as_u16(),
         status.canonical_reason().unwrap_or("Unknown Error")
     );
-    let error_message = match msg {
-        Some(v) => v.to_owned(),
-        None => status_error_msg.to_owned(),
-    };
-    let data: BTreeMap<_, _> = [("title", "Error"), ("error_message", &error_message)].iter().cloned().collect();
+    let data: BTreeMap<_, _> = [("title", "Error"), ("error_message", &error.external.msg)].iter().cloned().collect();
     let body = HBARS.render(TemplateName::Error.name(), &data).ok_or_js_err_with_msg("failed to render error page")?;
 
     let headers = Headers::new()?;
@@ -32,8 +30,8 @@ pub fn generate_error_response(status: StatusCode, msg: Option<&str>) -> JsResul
     Ok(JsValue::from(resp))
 }
 
-pub fn render_error(status: StatusCode) -> Promise {
-    match generate_error_response(status, None) {
+pub fn render_error(error: twoface::Error) -> Promise {
+    match generate_error_response(error) {
         Ok(v) => Promise::resolve(&v),
         Err(e) => Promise::reject(&e),
     }

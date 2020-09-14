@@ -1,12 +1,14 @@
+#[macro_use]
+extern crate anyhow;
 extern crate cfg_if;
 extern crate wasm_bindgen;
 
 mod models;
 mod templates;
 mod utils;
+mod twoface;
 mod view;
 
-#[macro_use]
 use crate::utils::*;
 use cfg_if::cfg_if;
 use http::StatusCode;
@@ -39,14 +41,20 @@ pub fn main(event: FetchEvent) -> Promise {
     };
     let path = url.path().to_lowercase();
     let method = req.method().to_lowercase();
-    let not_allowed = || view::render_error(StatusCode::METHOD_NOT_ALLOWED);
-    console_logf!("{}", "Serving...");
+    let render_404 = || {
+        let err = twoface::Error::new(
+            anyhow!("method {} not allowed for {}", method, url), 
+            StatusCode::NOT_FOUND, 
+            "Page not found",
+        );
+        view::render_error(err)
+    };
   
     match path.split("/").nth(1) {
         Some("") => match method.as_ref() {
             "get" => ftp(view::render_home(req)),
-            _ => not_allowed(),
+            _ => render_404(),
         },
-        _ => view::render_error(StatusCode::NOT_FOUND),
+        _ => render_404(),
     }
 }
