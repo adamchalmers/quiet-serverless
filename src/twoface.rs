@@ -1,4 +1,7 @@
 use std::fmt;
+use wasm_bindgen::prelude::*;
+
+pub type Fallible<T> = Result<T, Error>;
 
 pub struct Error {
     pub internal: anyhow::Error,
@@ -14,6 +17,12 @@ impl Error {
             msg: msg.to_string(), 
             status,
         })
+    }
+}
+
+impl Into<JsValue> for Error {
+    fn into(self) -> JsValue {
+        JsValue::from_str(&self.to_string())
     }
 }
 

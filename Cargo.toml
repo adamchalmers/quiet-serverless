@@ -19,14 +19,16 @@ default = ["console_error_panic_hook"]
 anyhow = "1.0.32"
 cfg-if = "0.1.2"
 futures = "0.3"
+guard = "0.5"
 handlebars = "3.4.0"
 http = "0.2.1"
 js-sys = "0.3"
 lazy_static = "1.1.0"
 rmp-serde = "0.14"
 serde = { version = "1.0.79", features = ["derive"] }
-url = "1.7.1"
-uuid = { version = "0.8.1", features = ["v4", "wasm-bindgen"] }
+serde_json = "1.0.57"
+url = { version = "2.1.1", features = ["serde"] }
+uuid = { version = "0.8.1", features = ["v4", "serde", "wasm-bindgen"] }
 wasm-bindgen = { version = "=0.2.65", features = ["serde-serialize"] }
 wasm-bindgen-futures = "0.4"
 
@@ -50,6 +52,7 @@ features = [
   'FetchEvent',
   'FormData',
   'Headers',
+  'ReadableStream',
   'Request',
   'Response',
   'ResponseInit',

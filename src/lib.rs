@@ -1,5 +1,7 @@
 #[macro_use]
 extern crate anyhow;
+#[macro_use]
+extern crate guard;
 extern crate cfg_if;
 extern crate wasm_bindgen;
 
@@ -50,9 +52,14 @@ pub fn main(event: FetchEvent) -> Promise {
         view::render_error(err)
     };
   
+    // Route the request to a handler function
     match path.split("/").nth(1) {
         Some("") => match method.as_ref() {
             "get" => ftp(view::render_home(req)),
+            _ => render_404(),
+        },
+        Some("post") => match method.as_ref() {
+            "post" => ftp(models::new_post(req)),
             _ => render_404(),
         },
         _ => render_404(),
