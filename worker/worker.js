@@ -4,6 +4,8 @@ addEventListener('fetch', event => {
 
 async function handle(event) {
   const { main } = wasm_bindgen;
-  await wasm_bindgen(wasm)
-  return await main(event)
+  await wasm_bindgen(wasm);
+  let resp = await main(event);
+  console.log("resp:", resp);
+  return resp;
 }

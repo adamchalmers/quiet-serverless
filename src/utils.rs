@@ -1,5 +1,8 @@
 use cfg_if::cfg_if;
+use js_sys::Error;
+use std::fmt::Display;
 use wasm_bindgen::prelude::*;
+use web_sys::{Response, ResponseInit};
 
 cfg_if! {
     // When the `console_error_panic_hook` feature is enabled, we can call the
@@ -18,10 +21,6 @@ cfg_if! {
 }
 
 pub type JsResult = Result<JsValue, JsValue>;
-
-use js_sys::Error;
-use std::fmt::Display;
-use wasm_bindgen::prelude::*;
 
 pub trait ToJsResult<T> {
     fn ok_or_js_err(self) -> Result<T, JsValue>;
@@ -73,4 +72,12 @@ impl<T, E> ToJsResultWithMsg<T> for Result<T, E> {
 #[macro_export]
 macro_rules! console_logf {
     ($($t:tt)*) => (web_sys::console::log_1(&format_args!($($t)*).to_string().into()))
+}
+
+pub fn success_response(body: &str) -> Response {
+    let mut init = ResponseInit::new();
+    init.status(http::StatusCode::OK.into());
+    Response::new_with_opt_str_and_init(Some(body), &init)
+        .map_err(|e| console_logf!("Error making response{:?}", e))
+        .unwrap()
 }

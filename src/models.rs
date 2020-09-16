@@ -1,6 +1,7 @@
 use crate::console_logf;
 use crate::twoface::*;
 use crate::utils::*;
+use http::StatusCode;
 use js_sys::Promise;
 use rmp_serde::{Deserializer, Serializer};
 use serde::{Deserialize, Serialize};
@@ -8,30 +9,47 @@ use std::convert::TryFrom;
 use url::Url;
 use uuid::Uuid;
 use wasm_bindgen::prelude::*;
-use wasm_bindgen_futures::{future_to_promise as ftp, JsFuture};
-use web_sys::Request;
+use wasm_bindgen_futures::JsFuture;
+use web_sys::{Request, Response};
 
 const MAX_POST_CHARS: usize = 1000;
 
-pub async fn new_post(req: Request) -> JsResult {
-    let new_post: NewPost = req
-        .into_serde()
-        .map_err(|e| {
-            e.describe(External {
-                status: http::StatusCode::BAD_REQUEST,
-                msg: "Your post was malformed".into(),
-            })
-        })
-        .map_err(|tfe| {
-            console_logf!("{:?}", tfe);
-            let v: JsValue = tfe.into();
-            v
-        })?;
-    let post = Post::try_from(new_post)?;
-    post.put_first()
-        .await
-        .map(|_| JsValue::null())
-        .map_err(|tfe| tfe.into())
+pub async fn new_post(req: Request) -> Result<Response, Response> {
+    let json_f = req.json().map_err(|e| {
+        Error {
+            internal: format!("error getting json future: {:?}", e),
+            external_msg: "couldn't get JSON from request".to_owned(),
+            status: StatusCode::INTERNAL_SERVER_ERROR,
+        }
+        .into_response()
+    })?;
+    let json = JsFuture::from(json_f).await.map_err(|e| {
+        Error {
+            internal: format!("error awaiting json: {:?}", e),
+            external_msg: "Error awaiting JSON".to_owned(),
+            status: StatusCode::BAD_REQUEST,
+        }
+        .into_response()
+    })?;
+    let new_post: NewPost = json.into_serde().map_err(|e| {
+        Error {
+            internal: format!("error parsing post: {:?}", e),
+            external_msg: "Your post was malformed".to_owned(),
+            status: StatusCode::BAD_REQUEST,
+        }
+        .into_response()
+    })?;
+    let post = Post::try_from(new_post).map_err(|e| {
+        Error {
+            internal: e.clone(),
+            external_msg: e,
+            status: StatusCode::BAD_REQUEST,
+        }
+        .into_response()
+    })?;
+    post.put_first().await.map_err(|e| e.into_response())?;
+    console_logf!("Successfully made new post");
+    Ok(success_response("you made a post"))
 }
 
 #[derive(Serialize, Deserialize)]
@@ -87,22 +105,18 @@ impl Post {
         let val = vec![self];
         let mut val_bytes = Vec::new();
         val.serialize(&mut Serializer::new(&mut val_bytes))
-            .map_err(|e| {
-                e.describe(External {
-                    status: http::StatusCode::BAD_REQUEST,
-                    msg: "Invalid post".into(),
-                })
+            .map_err(|e| Error {
+                internal: e.to_string(),
+                status: http::StatusCode::BAD_REQUEST,
+                external_msg: "Invalid post".into(),
             })?;
         JsFuture::from(PostsNs::put(&key, &val_bytes))
             .await
-            .map_err(|e| {
-                Error::new(
-                    anyhow!("{:?}", e),
-                    http::StatusCode::INTERNAL_SERVER_ERROR,
-                    "Post unsuccessful, please try again later",
-                )
+            .map_err(|e| Error {
+                internal: format!("{:?}", e),
+                status: http::StatusCode::INTERNAL_SERVER_ERROR,
+                external_msg: "Post unsuccessful, please try again later".to_owned(),
             })?;
-
         Ok(())
     }
 }

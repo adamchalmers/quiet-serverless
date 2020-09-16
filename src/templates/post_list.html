@@ -1,26 +1,12 @@
 <ul class="goat-list">
-{{#each goats}}
+    {{#each posts}}
     <li>
-    <a href="{{image}}" class="goat-img-link">
-        <img src="{{image_small}}" alt="{{name}} the goat">
-    </a>
-    <div class="goat-info">
-        <a href="{{image}}" class="goat-name-link">
-        <h3 class="goat-name">{{name}}</h3>
-        </a>
-        {{#if is_favorite}}
-        <form action="/remove-favorite" method="post">
-        {{else}}
-        <form action="/add-favorite" method="post">
-        {{/if}}
-        <input name="id" type="hidden" value="{{id}}">
-        {{#if is_favorite}}
-            <button type="submit" class="unfavorite">Remove from Favorites</button>
-        {{else}}
-            <button type="submit" class="favorite">Add to Favorites</button>
-        {{/if}}
-        </form>
-    </div>
+        <div class="goat-info">
+            <a href="{{link}}" class="goat-name-link">
+                <h3 class="goat-name">{{link}}</h3>
+            </a>
+            <h3>{{text}}</h3>
+        </div>
     </li>
-{{/each}}
+    {{/each}}
 </ul>
