@@ -1,9 +1,12 @@
+use crate::models;
 use crate::templates::{TemplateName, HBARS};
 use crate::twoface;
 use crate::utils::*;
 use js_sys::Promise;
 use lazy_static::lazy_static;
+use serde::Serialize;
 use std::collections::BTreeMap;
+use uuid::Uuid;
 use wasm_bindgen::prelude::*;
 use web_sys::{Headers, Request, Response, ResponseInit};
 
@@ -51,10 +54,24 @@ fn generate_response(body: &str, status: u16, headers: &Headers) -> Result<Respo
 }
 
 pub async fn render_home(_: Request) -> JsResult {
-    let data: BTreeMap<_, _> = [("title", "quiet."), ("parent", *BASE)]
-        .iter()
-        .cloned()
-        .collect();
+    let test_user = Uuid::parse_str("fc53b101-1756-4b8f-b5fe-b71d103e9f20").unwrap();
+    let posts = match models::all_posts_by_user(test_user).await {
+        Ok(p) => p,
+        Err(e) => return generate_error_response(e),
+    };
+    #[derive(Serialize)]
+    struct Data {
+        title: String,
+        parent: String,
+        posts: Vec<models::Post>,
+        post_list_template: String,
+    }
+    let data = Data {
+        title: "quiet".to_owned(),
+        parent: BASE.to_string(),
+        posts,
+        post_list_template: TemplateName::PostList.name().to_owned(),
+    };
     let body = HBARS
         .render(TemplateName::Home.name(), &data)
         .ok_or_js_err_with_msg("failed to render homepage")?;

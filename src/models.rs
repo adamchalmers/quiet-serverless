@@ -121,27 +121,24 @@ impl Post {
     }
 }
 
-// async fn all_posts_by_user(user_id: Uuid) -> Fallible<Vec<Post>> {
+pub async fn all_posts_by_user(user_id: Uuid) -> Fallible<Vec<Post>> {
+    let promise = PostsNs::get(&user_id.to_string(), "arrayBuffer");
+    let val = JsFuture::from(promise).await.map_err(|e| Error {
+        internal: format!("{:?}", e),
+        status: StatusCode::INTERNAL_SERVER_ERROR,
+        external_msg: "couldn't load posts from database".to_owned(),
+    })?;
+    let typebuf: js_sys::Uint8Array = js_sys::Uint8Array::new(&val);
+    let mut body = vec![0; typebuf.length() as usize];
+    typebuf.copy_to(&mut body[..]);
 
-//     let promise = PostsNs::get(&user_id.to_string(), "arrayBuffer");
-//     let val = JsFuture::from(promise)
-//         .await
-//         .map_err(|e| Error::new(
-//             anyhow!("{:?}", e),
-//             http::StatusCode::INTERNAL_SERVER_ERROR,
-//             "couldn't load posts from database"
-//         ))?;
-//     let typebuf: js_sys::Uint8Array = js_sys::Uint8Array::new(&val);
-//     let mut body = vec![0; typebuf.length() as usize];
-//     typebuf.copy_to(&mut body[..]);
-
-//     let posts: Vec<Post> = rmp_serde::from_read_ref(&body).map_err(|e| Error::new(
-//         e,
-//         http::StatusCode::INTERNAL_SERVER_ERROR,
-//         "couldn't load posts from database",
-//     ))?;
-//     Ok(posts)
-// }
+    let posts: Vec<Post> = rmp_serde::from_read_ref(&body).map_err(|e| Error {
+        internal: format!("{:?}", e),
+        status: StatusCode::INTERNAL_SERVER_ERROR,
+        external_msg: "couldn't load posts from database".to_owned(),
+    })?;
+    Ok(posts)
+}
 
 // The Cloudflare Workers environment will bind your Workers KV namespaces to
 // the name "PostsNs". This is configured in `wrangler.toml`. When your worker
