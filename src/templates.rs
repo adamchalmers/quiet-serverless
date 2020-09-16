@@ -5,6 +5,7 @@ pub enum TemplateName {
     Base,
     Home,
     Error,
+    NewPost,
 }
 
 impl TemplateName {
@@ -13,6 +14,7 @@ impl TemplateName {
             Self::Base => "base",
             Self::Home => "home",
             Self::Error => "error",
+            Self::NewPost => "new_post",
         }
     }
 }
@@ -23,6 +25,7 @@ lazy_static! {
         hb.register_template_string(&TemplateName::Base.name(), include_str!("templates/base.html")).unwrap();
         hb.register_template_string(&TemplateName::Home.name(), include_str!("templates/home.html")).unwrap();
         hb.register_template_string(&TemplateName::Error.name(), include_str!("templates/error.html")).unwrap();
+        hb.register_template_string(&TemplateName::NewPost.name(), include_str!("templates/new_post.html")).unwrap();
         hb
     };
 }

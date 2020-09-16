@@ -1,28 +1,37 @@
+use crate::console_logf;
+use crate::twoface::*;
+use crate::utils::*;
+use js_sys::Promise;
+use rmp_serde::{Deserializer, Serializer};
+use serde::{Deserialize, Serialize};
+use std::convert::TryFrom;
 use url::Url;
 use uuid::Uuid;
 use wasm_bindgen::prelude::*;
-use serde::{Serialize, Deserialize};
-use js_sys::{Promise};
-use rmp_serde::{Deserializer, Serializer};
-use crate::twoface::*;
-use crate::utils::*;
 use wasm_bindgen_futures::{future_to_promise as ftp, JsFuture};
 use web_sys::Request;
-use std::convert::TryFrom;
 
 const MAX_POST_CHARS: usize = 1000;
 
 pub async fn new_post(req: Request) -> JsResult {
-    let new_post: NewPost = req.into_serde().map_err(|e| e.describe(External{
-        status: http::StatusCode::BAD_REQUEST,
-        msg: "Your post was malformed".into(),
-    }))
-    .map_err(|tfe| {
-        let v: JsValue = tfe.into();
-        v
-    })?;
+    let new_post: NewPost = req
+        .into_serde()
+        .map_err(|e| {
+            e.describe(External {
+                status: http::StatusCode::BAD_REQUEST,
+                msg: "Your post was malformed".into(),
+            })
+        })
+        .map_err(|tfe| {
+            console_logf!("{:?}", tfe);
+            let v: JsValue = tfe.into();
+            v
+        })?;
     let post = Post::try_from(new_post)?;
-    post.put_first().await.map(|_|JsValue::null()).map_err(|tfe| tfe.into())
+    post.put_first()
+        .await
+        .map(|_| JsValue::null())
+        .map_err(|tfe| tfe.into())
 }
 
 #[derive(Serialize, Deserialize)]
@@ -46,20 +55,24 @@ pub struct NewPost {
 }
 
 impl TryFrom<NewPost> for Post {
-
     type Error = String;
-    
+
     fn try_from(new_post: NewPost) -> Result<Self, Self::Error> {
         if new_post.text.len() > MAX_POST_CHARS {
-            return Err(format!("Posts can only have {} characters, but yours has {}", MAX_POST_CHARS, new_post.text.len()));
+            return Err(format!(
+                "Posts can only have {} characters, but yours has {}",
+                MAX_POST_CHARS,
+                new_post.text.len()
+            ));
         }
-        let user_id = Uuid::parse_str(&new_post.user_id).map_err(|_|format!("{} is an invalid user ID", new_post.user_id))?;
-        let link = match new_post.link.map(|s|Url::parse(&s)) {
+        let user_id = Uuid::parse_str(&new_post.user_id)
+            .map_err(|_| format!("{} is an invalid user ID", new_post.user_id))?;
+        let link = match new_post.link.map(|s| Url::parse(&s)) {
             Some(Err(_)) => return Err("The URL is invalid".to_owned()),
             None => None,
-            Some(Ok(u)) => Some(u)
+            Some(Ok(u)) => Some(u),
         };
-        Ok(Self{
+        Ok(Self {
             text: new_post.text,
             link,
             user_id,
@@ -68,21 +81,27 @@ impl TryFrom<NewPost> for Post {
 }
 
 impl Post {
-
     pub async fn put_first(self) -> Fallible<()> {
         let key = self.user_id.to_string();
         // let mut val = all_posts_by_user(self.user_id).await?;
         let val = vec![self];
         let mut val_bytes = Vec::new();
-        val.serialize(&mut Serializer::new(&mut val_bytes)).map_err(|e| e.describe(External{
-            status: http::StatusCode::BAD_REQUEST,
-            msg: "Invalid post".into(),
-        }))?;
-        JsFuture::from(PostsNs::put(&key, &val_bytes)).await.map_err(|e| Error::new(
-            anyhow!("{:?}", e),
-            http::StatusCode::INTERNAL_SERVER_ERROR,
-            "Post unsuccessful, please try again later"
-        ))?;
+        val.serialize(&mut Serializer::new(&mut val_bytes))
+            .map_err(|e| {
+                e.describe(External {
+                    status: http::StatusCode::BAD_REQUEST,
+                    msg: "Invalid post".into(),
+                })
+            })?;
+        JsFuture::from(PostsNs::put(&key, &val_bytes))
+            .await
+            .map_err(|e| {
+                Error::new(
+                    anyhow!("{:?}", e),
+                    http::StatusCode::INTERNAL_SERVER_ERROR,
+                    "Post unsuccessful, please try again later",
+                )
+            })?;
 
         Ok(())
     }
@@ -127,4 +146,4 @@ extern "C" {
 
     #[wasm_bindgen(static_method_of = PostsNs)]
     fn delete(key: &str) -> Promise;
-}   
+}

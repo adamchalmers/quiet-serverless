@@ -7,20 +7,18 @@ extern crate wasm_bindgen;
 
 mod models;
 mod templates;
-mod utils;
 mod twoface;
+mod utils;
 mod view;
 
 use crate::utils::*;
 use cfg_if::cfg_if;
 use http::StatusCode;
-use js_sys::{Promise};
+use js_sys::Promise;
 use url::Url;
 use wasm_bindgen::prelude::*;
-use wasm_bindgen_futures::{future_to_promise as ftp};
-use web_sys::{
-    FetchEvent
-};
+use wasm_bindgen_futures::future_to_promise as ftp;
+use web_sys::FetchEvent;
 
 cfg_if! {
     // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
@@ -31,8 +29,6 @@ cfg_if! {
         static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
     }
 }
-
-
 
 #[wasm_bindgen]
 pub fn main(event: FetchEvent) -> Promise {
@@ -45,13 +41,13 @@ pub fn main(event: FetchEvent) -> Promise {
     let method = req.method().to_lowercase();
     let render_404 = || {
         let err = twoface::Error::new(
-            anyhow!("method {} not allowed for {}", method, url), 
-            StatusCode::NOT_FOUND, 
+            anyhow!("method {} not allowed for {}", method, url),
+            StatusCode::NOT_FOUND,
             "Page not found",
         );
         view::render_error(err)
     };
-  
+
     // Route the request to a handler function
     match path.split("/").nth(1) {
         Some("") => match method.as_ref() {
@@ -60,6 +56,7 @@ pub fn main(event: FetchEvent) -> Promise {
         },
         Some("post") => match method.as_ref() {
             "post" => ftp(models::new_post(req)),
+            "get" => ftp(view::render_new_post(req)),
             _ => render_404(),
         },
         _ => render_404(),

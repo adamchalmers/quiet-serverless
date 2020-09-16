@@ -3,18 +3,24 @@ use wasm_bindgen::prelude::*;
 
 pub type Fallible<T> = Result<T, Error>;
 
+#[derive(Debug)]
 pub struct Error {
     pub internal: anyhow::Error,
     pub external: External,
 }
 
 impl Error {
-    pub fn new<Internal, UserMessage>(internal: Internal, status: http::StatusCode, msg: UserMessage) -> Self 
-    where 
+    pub fn new<Internal, UserMessage>(
+        internal: Internal,
+        status: http::StatusCode,
+        msg: UserMessage,
+    ) -> Self
+    where
         Internal: Into<anyhow::Error>,
-        UserMessage: fmt::Display {
-        internal.describe(External{
-            msg: msg.to_string(), 
+        UserMessage: fmt::Display,
+    {
+        internal.describe(External {
+            msg: msg.to_string(),
             status,
         })
     }
@@ -26,13 +32,14 @@ impl Into<JsValue> for Error {
     }
 }
 
+#[derive(Debug)]
 pub struct External {
     pub status: http::StatusCode,
     pub msg: String,
 }
 
 pub trait Describe {
-    fn describe(self, external: External) -> Error; 
+    fn describe(self, external: External) -> Error;
 }
 
 impl fmt::Display for Error {
