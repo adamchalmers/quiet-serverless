@@ -49,7 +49,7 @@ pub async fn new_post(req: Request) -> Result<Response, Response> {
     })?;
     post.put().await.map_err(|e| e.into_response())?;
     console_logf!("Successfully made new post");
-    Ok(success_response("you made a post"))
+    Ok(success_response("you made a post", Some("/".to_owned())))
 }
 
 #[derive(Serialize, Deserialize)]

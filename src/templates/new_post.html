@@ -4,7 +4,7 @@
     <fieldset class="pure-group">
         <input id="np-link" type="text" class="pure-input-1" placeholder="Add a link (optional)" />
         <textarea id="np-text" class="pure-input-1" placeholder="What do you want to say?"></textarea>
-        <button type="submit" id="np-submit" class="pure-button pure-input-1-4 pure-button-primary">Send your daily
+        <button type="button" id="np-submit" class="pure-button pure-input-1-4 pure-button-primary">Send your daily
             post</button>
     </fieldset>
 </form>
@@ -14,7 +14,8 @@
     <button id="np-submit">Send your daily post</button>
 </div> -->
 <script>
-    document.getElementById("np-submit").onclick = async function sendPost() {
+    document.getElementById("np-submit").onclick = async function sendPost(event) {
+
         const data = {
             link: document.getElementById("np-link").value,
             text: document.getElementById("np-text").value,
@@ -29,6 +30,12 @@
             body: JSON.stringify(data),
         });
         console.log(resp);
+        if (resp.ok) {
+            window.location.href = resp.headers.get("location");
+        } else {
+            console.log(resp.body);
+        }
+        event.preventDefault();
     };
 </script>
 {{/inline}}

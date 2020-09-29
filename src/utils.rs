@@ -2,7 +2,7 @@ use cfg_if::cfg_if;
 use js_sys::Error;
 use std::fmt::Display;
 use wasm_bindgen::prelude::*;
-use web_sys::{Response, ResponseInit};
+use web_sys::{Headers, Response, ResponseInit};
 
 cfg_if! {
     // When the `console_error_panic_hook` feature is enabled, we can call the
@@ -74,10 +74,22 @@ macro_rules! console_logf {
     ($($t:tt)*) => (web_sys::console::log_1(&format_args!($($t)*).to_string().into()))
 }
 
-pub fn success_response(body: &str) -> Response {
+pub fn success_response(body: &str, url: Option<String>) -> Response {
     let mut init = ResponseInit::new();
     init.status(http::StatusCode::OK.into());
+    if let Some(url) = url {
+        let headers = redirect_headers(&url)
+            .map_err(|e| console_logf!("Error making response: {:?}", e))
+            .unwrap();
+        init.headers(&JsValue::from(headers));
+    }
     Response::new_with_opt_str_and_init(Some(body), &init)
-        .map_err(|e| console_logf!("Error making response{:?}", e))
+        .map_err(|e| console_logf!("Error making response: {:?}", e))
         .unwrap()
+}
+
+pub fn redirect_headers(url: &str) -> Result<Headers, JsValue> {
+    let headers = Headers::new()?;
+    headers.set("location", url)?;
+    Ok(headers)
 }
