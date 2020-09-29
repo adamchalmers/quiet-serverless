@@ -1,12 +1,28 @@
-<ul class="goat-list">
+<div class="posts">
+    <h1 class="content-subhead">all posts</h1>
+
+    <!-- A single blog post -->
     {{#each posts}}
-    <li>
-        <div class="goat-info">
-            <a href="{{link}}" class="goat-name-link">
-                <h3 class="goat-name">{{link}}</h3>
+    <section class="post">
+        <header class="post-header">
+            <img width="48" height="48" alt="TODO: profile pic here" class="post-avatar"
+                src="/img/common/tilo-avatar.png">
+
+            <a href="{{link}}">
+                <h2 class="post-title">{{link}}</h2>
             </a>
-            <h3>{{text}}</h3>
+
+            <p class="post-meta">
+                By <a href="#" class="post-author">TODO: username here</a> on <a href="#"
+                    class="post-timestamp">Wednesday</a>
+            </p>
+        </header>
+
+        <div class="post-description">
+            <p>
+                {{text}}
+            </p>
         </div>
-    </li>
+    </section>
     {{/each}}
-</ul>
+</div>

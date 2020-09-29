@@ -1,227 +1,237 @@
+<!doctype html>
 <html lang="en">
 
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="quiet. a better site." />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A layout example that shows off a blog page with a list of posts.">
+  <title>Blog &ndash; Layout Examples &ndash; Pure</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/2.0.3/pure-min.css"
     integrity="sha384-cg6SkqEOCV1NbJoCu11+bm0NvBRc8IYLRGXkmNrqUBfTjmMYwNKPWBTIKyw9mHNJ" crossorigin="anonymous">
-  <!-- <link rel="icon" href="/images/favicon.png"> -->
-  <!--
-   -->
-  <title>{{title}}</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pure/2.0.3/grids-responsive-min.min.css"
+    integrity="sha512-9Y7KTqFZyLD5xbUBpA8HUl15Y/UkhtMGPy4TGKs/Ylno9X7voFHcFceJfNS3XBv0SkcIs5OH01YVJD7Ukb2eOA=="
+    crossorigin="anonymous" />
   <style>
-    ol,
-    ul {
-      list-style: none;
-    }
-
-    body {
-      line-height: 1;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      background: rgb(245, 245, 245);
-      font-size: 16px;
-      color: #222;
-    }
-
-    .goat-list {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .goat-list li {
-      background: #fff;
-      border: 1px solid #d5d5d5;
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 4px;
-    }
-
-    .goat-list {
-      margin-bottom: -10px;
-    }
-
-    .goat-img-link {
-      display: block;
-      position: relative;
-    }
-
-    .goat-img-link:after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.2);
-      opacity: 0;
-      transition: opacity 300ms;
-    }
-
-    .goat-img-link:hover:after {
-      opacity: 1;
-    }
-
-    .goat-list img {
-      width: 100%;
-      display: block;
-    }
-
-    .goat-list button {
-      padding: 8px 12px;
-      background: #196ec5;
-      color: #fff;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    .goat-list button:hover {
-      background: #3c92ea;
-    }
-
-    .goat-list button:active {
-      background: #215488;
-    }
-
-    .goat-name {
-      font-size: 24px;
-    }
-
-    .goat-name-link {
-      margin-bottom: 20px;
-    }
-
-    .goat-name-link:hover {
-      color: #666;
-    }
-
-    .goat-info {
-      flex-direction: column;
-      display: flex;
-      padding: 20px 0 10px;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    nav {
-      background: #1a1a1a;
-      overflow: hidden;
-    }
-
-    nav a:hover {
-      opacity: 0.8;
-    }
-
-    nav a:active {
-      opacity: 0.5;
+    * {
+      -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box;
     }
 
     a {
       text-decoration: none;
-      cursor: pointer;
-      color: inherit;
+      color: #cc016b;
     }
 
-    .nav-wrapper {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      color: white;
-      max-width: 800px;
-      padding: 0 20px;
-      margin: 0 auto;
+    a:hover,
+    a:focus {
+      text-decoration: underline;
     }
 
-    section {
-      padding: 20px;
-      max-width: 800px;
-      margin: 0 auto;
+    h3 {
+      font-weight: 100;
     }
 
-    .logo {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin: 16px 20px 16px 0;
+    /* LAYOUT CSS */
+    .pure-img-responsive {
+      max-width: 100%;
+      height: auto;
     }
 
-    .logo-text {
-      flex: 0 1 auto;
+    #layout {
+      padding: 0;
     }
 
-    .logo-img-wrapper {
-      display: block;
-      flex: 0 0 auto;
-      margin-right: 10px;
-      width: 45px;
-      height: 42px;
-    }
-
-    .logo img {
-      width: 100%;
-    }
-
-    .favorites-wrapper {
-      display: flex;
-      align-items: center;
-    }
-
-    .favorites-wrapper span {
-      display: block;
-    }
-
-    .fav-count {
-      background: #fff;
-      color: #1a1a1a;
-      border-radius: 12px;
+    .header {
       text-align: center;
-      min-width: 24px;
-      min-height: 24px;
-      padding: 4px 8px;
-      margin-right: 6px;
-      flex: 0 0 auto;
+      top: auto;
+      margin: 3em auto;
     }
 
-    .fav-text {
-      line-height: 18px;
+    .sidebar {
+      background: #000;
+      color: #fff;
     }
 
-    .no-favs-text {
-      margin-top: 12px;
+    .brand-title,
+    .brand-tagline {
+      margin: 0;
+      color: #fff;
     }
 
+    .brand-tagline {
+      font-weight: 300;
+      color: rgb(176, 202, 219);
+    }
 
-    @media (max-width: 320px) {
-      .logo-img-wrapper {
-        display: none;
+    .yellow {
+      color: rgb(255, 207, 1);
+    }
+
+    .magenta {
+      color: #cc016b;
+    }
+
+    .cyan {
+      color: #0093d3;
+    }
+
+    .nav-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .nav-item {
+      display: inline-block;
+      *display: inline;
+      zoom: 1;
+    }
+
+    .nav-item a {
+      background: transparent;
+      border: 2px solid rgb(220, 200, 220);
+      color: #fff;
+      margin-top: 1em;
+      letter-spacing: 0.05em;
+      font-size: 85%;
+    }
+
+    .nav-item a:hover,
+    .nav-item a:focus {
+      border: 2px solid #cc016b;
+      text-decoration: none;
+    }
+
+    .content-subhead {
+      color: #aaa;
+      border-bottom: 1px solid #eee;
+      padding: 0.4em 0;
+      font-size: 80%;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+    }
+
+    #np-submit {
+      background: #0093d3;
+    }
+
+    .content {
+      padding: 2em 1em 0;
+    }
+
+    .post {
+      padding-bottom: 2em;
+    }
+
+    .post-title {
+      font-size: 2em;
+      color: #222;
+      margin-bottom: 0.2em;
+    }
+
+    .post-avatar {
+      border-radius: 50px;
+      float: right;
+      margin-left: 1em;
+    }
+
+    .post-description {
+      font-family: Georgia, "Cambria", serif;
+      color: #444;
+      line-height: 1.8em;
+    }
+
+    .post-meta {
+      color: #999;
+      font-size: 90%;
+      margin: 0;
+    }
+
+    .post-category {
+      margin: 0 0.1em;
+      padding: 0.3em 1em;
+      color: #fff;
+      background: #999;
+      font-size: 80%;
+    }
+
+    .post-images {
+      margin: 1em 0;
+    }
+
+    .post-image-meta {
+      margin-top: -3.5em;
+      margin-left: 1em;
+      color: #fff;
+      text-shadow: 0 1px 1px #333;
+    }
+
+    .footer {
+      padding: 1em 0;
+    }
+
+    .footer a {
+      color: #ccc;
+      font-size: 80%;
+    }
+
+    .footer .pure-menu a:hover,
+    .footer .pure-menu a:focus {
+      background: none;
+    }
+
+    @media (min-width: 48em) {
+      .content {
+        padding: 2em 3em 0;
+        margin-left: 25%;
       }
-    }
 
-    @media (min-width: 400px) {
-      .goat-info {
-        flex-direction: row;
+      .header {
+        margin: 80% 2em 0;
+        text-align: right;
       }
 
-      .goat-name-link {
-        margin-bottom: 0;
-        margin-right: 20px;
+      .sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+      }
+
+      .footer {
+        text-align: center;
       }
     }
   </style>
 </head>
 
 <body>
-  <nav>
-    <div class="nav-wrapper">
-      <a href="/" class="logo">
-        <div class="logo-img-wrapper"><img src="/images/logo.svg" alt="logo goes here"></div>
-        <h1 class="logo-text">quiet.</h1>
-      </a>
+
+  <div id="layout" class="pure-g">
+    <div class="sidebar pure-u-1 pure-u-md-1-4">
+      <div class="header">
+        <a href="/">
+          <h1 class="brand-title">quiet.</h1>
+        </a>
+
+        <nav class="nav">
+          <ul class="nav-list">
+            <li class="nav-item">
+              <a class="pure-button" href="#">about</a>
+            </li>
+            <li class="nav-item">
+              <a class="pure-button" href="/post">new post</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
     </div>
-  </nav>
-  <section>
-    {{~> page}}
-  </section>
+
+    <div class="content pure-u-1 pure-u-md-3-4">
+      {{~> page}}
+    </div>
+  </div>
+
 </body>
 
 </html>
