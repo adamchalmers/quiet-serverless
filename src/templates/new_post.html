@@ -1,10 +1,18 @@
 {{#*inline "page"}}
 <h1>New Post</h1>
-<div class="np-box">
-    <input id="np-link" type="textarea" rows="1" name="link" placeholder="Post a link (optional)" />
+<form class="pure-form">
+    <fieldset class="pure-group">
+        <input id="np-link" type="text" class="pure-input-1" placeholder="Add a link (optional)" />
+        <textarea id="np-text" class="pure-input-1" placeholder="What do you want to say?"></textarea>
+        <button type="submit" id="np-submit" class="pure-button pure-input-1-4 pure-button-primary">Send your daily
+            post</button>
+    </fieldset>
+</form>
+<!-- <div class="np-box">
+    <input id="" type="textarea" rows="1" name="link" placeholder="Post a link (optional)" />
     <input id="np-text" type="textarea" rows="3" name="text" placeholder="Write your post here" />
     <button id="np-submit">Send your daily post</button>
-</div>
+</div> -->
 <script>
     document.getElementById("np-submit").onclick = async function sendPost() {
         const data = {

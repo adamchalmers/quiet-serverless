@@ -3,7 +3,7 @@ use crate::twoface::*;
 use crate::utils::*;
 use http::StatusCode;
 use js_sys::Promise;
-use rmp_serde::{Deserializer, Serializer};
+use rmp_serde::Serializer;
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
 use url::Url;
@@ -47,7 +47,7 @@ pub async fn new_post(req: Request) -> Result<Response, Response> {
         }
         .into_response()
     })?;
-    post.put_first().await.map_err(|e| e.into_response())?;
+    post.put().await.map_err(|e| e.into_response())?;
     console_logf!("Successfully made new post");
     Ok(success_response("you made a post"))
 }
@@ -99,10 +99,10 @@ impl TryFrom<NewPost> for Post {
 }
 
 impl Post {
-    pub async fn put_first(self) -> Fallible<()> {
+    pub async fn put(self) -> Fallible<()> {
         let key = self.user_id.to_string();
-        // let mut val = all_posts_by_user(self.user_id).await?;
-        let val = vec![self];
+        let mut val = all_posts_by_user(self.user_id).await?;
+        val.push(self);
         let mut val_bytes = Vec::new();
         val.serialize(&mut Serializer::new(&mut val_bytes))
             .map_err(|e| Error {
@@ -128,7 +128,13 @@ pub async fn all_posts_by_user(user_id: Uuid) -> Fallible<Vec<Post>> {
         status: StatusCode::INTERNAL_SERVER_ERROR,
         external_msg: "couldn't load posts from database".to_owned(),
     })?;
+    if val.is_null() || val.is_undefined() {
+        return Ok(Vec::new());
+    }
     let typebuf: js_sys::Uint8Array = js_sys::Uint8Array::new(&val);
+    if typebuf.length() == 0 {
+        return Ok(Vec::new());
+    }
     let mut body = vec![0; typebuf.length() as usize];
     typebuf.copy_to(&mut body[..]);
 
