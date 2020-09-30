@@ -23,7 +23,7 @@ pub fn generate_error_response(error: twoface::Error) -> JsResult {
     );
     let data: BTreeMap<_, _> = [
         ("title", "Error"),
-        ("error_message", &error.external_msg),
+        ("error_message", &error.external.msg),
         ("http_error", &http_error),
     ]
     .iter()

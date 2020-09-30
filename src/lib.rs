@@ -43,7 +43,9 @@ pub fn main(event: FetchEvent) -> Promise {
         let err = twoface::Error {
             internal: format!("method {} not allowed for {}", method, url),
             status: StatusCode::NOT_FOUND,
-            external_msg: "Page not found".to_owned(),
+            external: twoface::External {
+                msg: "Page not found".to_owned(),
+            },
         };
         view::render_error(err)
     };

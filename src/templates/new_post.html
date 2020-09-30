@@ -21,7 +21,6 @@
             text: document.getElementById("np-text").value,
             user_id: "fc53b101-1756-4b8f-b5fe-b71d103e9f20"
         };
-        console.log(data);
         const resp = await fetch("/post", {
             method: "POST",
             headers: {
@@ -33,7 +32,7 @@
         if (resp.ok) {
             window.location.href = resp.headers.get("location");
         } else {
-            console.log(resp.body);
+            console.log(await resp.text());
         }
         event.preventDefault();
     };

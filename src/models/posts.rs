@@ -1,4 +1,5 @@
 use crate::console_logf;
+use crate::twoface;
 use crate::twoface::*;
 use crate::utils::*;
 use http::StatusCode;
@@ -18,7 +19,9 @@ pub async fn new_post(req: Request) -> Result<Response, Response> {
     let json_f = req.json().map_err(|e| {
         Error {
             internal: format!("error getting json future: {:?}", e),
-            external_msg: "couldn't get JSON from request".to_owned(),
+            external: twoface::External {
+                msg: "couldn't get JSON from request".to_owned(),
+            },
             status: StatusCode::INTERNAL_SERVER_ERROR,
         }
         .into_response()
@@ -26,7 +29,9 @@ pub async fn new_post(req: Request) -> Result<Response, Response> {
     let json = JsFuture::from(json_f).await.map_err(|e| {
         Error {
             internal: format!("error awaiting json: {:?}", e),
-            external_msg: "Error awaiting JSON".to_owned(),
+            external: twoface::External {
+                msg: "Error awaiting JSON".to_owned(),
+            },
             status: StatusCode::BAD_REQUEST,
         }
         .into_response()
@@ -34,7 +39,9 @@ pub async fn new_post(req: Request) -> Result<Response, Response> {
     let new_post: NewPost = json.into_serde().map_err(|e| {
         Error {
             internal: format!("error parsing post: {:?}", e),
-            external_msg: "Your post was malformed".to_owned(),
+            external: twoface::External {
+                msg: "Your post was malformed".to_owned(),
+            },
             status: StatusCode::BAD_REQUEST,
         }
         .into_response()
@@ -42,7 +49,7 @@ pub async fn new_post(req: Request) -> Result<Response, Response> {
     let post = Post::try_from(new_post).map_err(|e| {
         Error {
             internal: e.clone(),
-            external_msg: e,
+            external: twoface::External { msg: e },
             status: StatusCode::BAD_REQUEST,
         }
         .into_response()
@@ -108,14 +115,18 @@ impl Post {
             .map_err(|e| Error {
                 internal: e.to_string(),
                 status: http::StatusCode::BAD_REQUEST,
-                external_msg: "Invalid post".into(),
+                external: twoface::External {
+                    msg: "Invalid post".into(),
+                },
             })?;
         JsFuture::from(PostsNs::put(&key, &val_bytes))
             .await
             .map_err(|e| Error {
                 internal: format!("{:?}", e),
                 status: http::StatusCode::INTERNAL_SERVER_ERROR,
-                external_msg: "Post unsuccessful, please try again later".to_owned(),
+                external: twoface::External {
+                    msg: "Post unsuccessful, please try again later".to_owned(),
+                },
             })?;
         Ok(())
     }
@@ -126,7 +137,9 @@ pub async fn all_posts_by_user(user_id: Uuid) -> Fallible<Vec<Post>> {
     let val = JsFuture::from(promise).await.map_err(|e| Error {
         internal: format!("{:?}", e),
         status: StatusCode::INTERNAL_SERVER_ERROR,
-        external_msg: "couldn't load posts from database".to_owned(),
+        external: twoface::External {
+            msg: "couldn't load posts from database".to_owned(),
+        },
     })?;
     if val.is_null() || val.is_undefined() {
         return Ok(Vec::new());
@@ -141,7 +154,9 @@ pub async fn all_posts_by_user(user_id: Uuid) -> Fallible<Vec<Post>> {
     let posts: Vec<Post> = rmp_serde::from_read_ref(&body).map_err(|e| Error {
         internal: format!("{:?}", e),
         status: StatusCode::INTERNAL_SERVER_ERROR,
-        external_msg: "couldn't load posts from database".to_owned(),
+        external: twoface::External {
+            msg: "couldn't load posts from database".to_owned(),
+        },
     })?;
     Ok(posts)
 }
