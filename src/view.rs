@@ -1,4 +1,4 @@
-use crate::models;
+use crate::models::posts;
 use crate::templates::{TemplateName, HBARS};
 use crate::twoface;
 use crate::utils::*;
@@ -55,7 +55,7 @@ fn generate_response(body: &str, status: u16, headers: &Headers) -> Result<Respo
 
 pub async fn render_home(_: Request) -> JsResult {
     let test_user = Uuid::parse_str("fc53b101-1756-4b8f-b5fe-b71d103e9f20").unwrap();
-    let posts = match models::all_posts_by_user(test_user).await {
+    let posts = match posts::all_posts_by_user(test_user).await {
         Ok(p) => p,
         Err(e) => return generate_error_response(e),
     };
@@ -63,7 +63,7 @@ pub async fn render_home(_: Request) -> JsResult {
     struct Data {
         title: String,
         parent: String,
-        posts: Vec<models::Post>,
+        posts: Vec<posts::Post>,
         post_list_template: String,
     }
     let data = Data {

@@ -55,7 +55,7 @@ pub fn main(event: FetchEvent) -> Promise {
             _ => render_404(),
         },
         Some("post") => match method.as_ref() {
-            "post" => api_result_to_promise(models::new_post(req)),
+            "post" => api_result_to_promise(models::posts::new_post(req)),
             "get" => ftp(view::render_new_post(req)),
             _ => render_404(),
         },
