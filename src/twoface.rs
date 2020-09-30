@@ -25,10 +25,10 @@ impl Error {
         let mut init = ResponseInit::new();
         init.status(self.status.into());
         console_logf!("adam 1");
-        // let body = serde_json::to_string(&self.external)
-        //     .map_err(|e| console_logf!("Error making response {:?}", e))
-        //     .unwrap();
-        let resp = Response::new_with_opt_str_and_init(Some("hello error"), &init)
+        let body = serde_json::to_string(&self.external)
+            .map_err(|e| console_logf!("Error making response {:?}", e))
+            .unwrap();
+        let resp = Response::new_with_opt_str_and_init(Some(&body), &init)
             .map_err(|e| console_logf!("Error making response {:?}", e))
             .unwrap();
         console_logf!("adam 2");

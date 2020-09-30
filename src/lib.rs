@@ -69,6 +69,13 @@ fn api_result_to_promise<F>(f: F) -> Promise
 where
     F: 'static + Future<Output = Result<Response, Response>>,
 {
-    let f = f.map(|result| result.map(JsValue::from).map_err(JsValue::from));
+    let f = f.map(|result| match result {
+        Ok(val) => Ok(JsValue::from(val)),
+        // If `ftp` receives an Err value, it will reject the promise.
+        // This isn't actually what we want here -- we want to resolve the
+        // promise and send a response. The response itself is an error message,
+        // but it did resolve.
+        Err(val) => Ok(JsValue::from(val)),
+    });
     ftp(f)
 }

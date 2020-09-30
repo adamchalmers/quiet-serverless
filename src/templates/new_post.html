@@ -32,7 +32,8 @@
         if (resp.ok) {
             window.location.href = resp.headers.get("location");
         } else {
-            console.log(await resp.text());
+            const respBody = await resp.json();
+            alert(respBody.msg);
         }
         event.preventDefault();
     };
